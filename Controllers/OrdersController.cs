@@ -17,9 +17,9 @@ namespace Northwind.Api.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetOrders(
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 50,
-    [FromQuery] List<int>? ids = null)
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 50,
+            [FromQuery] List<int>? ids = null)
         {
             if (page < 1)
             {
