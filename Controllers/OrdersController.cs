@@ -17,8 +17,9 @@ namespace Northwind.Api.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetOrders(
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 50)
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 50,
+    [FromQuery] List<int>? ids = null)
         {
             if (page < 1)
             {
@@ -36,6 +37,11 @@ namespace Northwind.Api.Controllers
             }
 
             var query = _context.Orders.AsNoTracking();
+
+            if (ids is { Count: > 0 })
+            {
+                query = query.Where(o => ids.Contains(o.OrderId));
+            }
 
             var totalCount = await query.CountAsync();
 
