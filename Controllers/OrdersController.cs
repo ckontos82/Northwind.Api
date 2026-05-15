@@ -16,11 +16,47 @@ namespace Northwind.Api.Controllers
         }
 
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> GetOrders(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 50,
             [FromQuery] List<int>? ids = null)
         {
+            if (ids is not null && ids.Any(id => id <= 0))
+            {
+                return BadRequest("All order IDs must be positive integers.");
+            }
+
+            var query = _context.Orders.AsNoTracking();
+
+            if (ids is { Count: > 0 })
+            {
+                var ordersByIds = await query
+                    .Where(o => ids.Contains(o.OrderId))
+                    .OrderBy(o => o.OrderId)
+                    .Select(o => new
+                    {
+                        o.OrderId,
+                        o.OrderDate,
+                        o.RequiredDate,
+                        o.ShippedDate,
+                        o.CustomerId,
+                        o.ShipName,
+                        o.ShipCity,
+                        o.ShipCountry,
+                        OrderLinesCount = o.OrderDetails.Count
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    FilteredByIds = true,
+                    RequestedIds = ids,
+                    Count = ordersByIds.Count,
+                    Items = ordersByIds
+                });
+            }
+
             if (page < 1)
             {
                 page = 1;
@@ -34,13 +70,6 @@ namespace Northwind.Api.Controllers
             if (pageSize > 100)
             {
                 pageSize = 100;
-            }
-
-            var query = _context.Orders.AsNoTracking();
-
-            if (ids is { Count: > 0 })
-            {
-                query = query.Where(o => ids.Contains(o.OrderId));
             }
 
             var totalCount = await query.CountAsync();
