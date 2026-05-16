@@ -44,7 +44,16 @@ namespace Northwind.Api.Controllers
                         o.ShipName,
                         o.ShipCity,
                         o.ShipCountry,
-                        OrderLinesCount = o.OrderDetails.Count
+                        OrderLinesCount = o.OrderDetails.Count,
+                        Details = o.OrderDetails.Select(od => new
+                        {
+                            od.ProductId,
+                            od.Product.ProductName,
+                            od.UnitPrice,
+                            od.Quantity,
+                            od.Discount,
+                            LineTotal = od.UnitPrice * od.Quantity * (decimal)(1 - od.Discount)
+                        })
                     })
                     .ToListAsync();
 
@@ -88,7 +97,16 @@ namespace Northwind.Api.Controllers
                     o.ShipName,
                     o.ShipCity,
                     o.ShipCountry,
-                    OrderLinesCount = o.OrderDetails.Count
+                    OrderLinesCount = o.OrderDetails.Count,
+                    Details = o.OrderDetails.Select(od => new
+                    {
+                        od.ProductId,
+                        od.Product.ProductName,
+                        od.UnitPrice,
+                        od.Quantity,
+                        od.Discount,
+                        LineTotal = od.UnitPrice * od.Quantity * (decimal)(1 - od.Discount)
+                    })
                 })
                 .ToListAsync();
 
